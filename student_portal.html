@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Air University Student Portal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; }
+
+  /* ── LOGIN PAGE ── */
+  #login-page {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a3a6b 0%, #2d6a9f 50%, #1a3a6b 100%);
+  }
+  .login-box {
+    background: #fff; border-radius: 10px; padding: 48px 44px;
+    width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .login-logo {
+    text-align: center; margin-bottom: 28px;
+  }
+  .login-logo .uni-name {
+    font-size: 22px; font-weight: 700; color: #1a3a6b; line-height: 1.2;
+  }
+  .login-logo .portal-label {
+    font-size: 13px; color: #666; margin-top: 4px; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .login-divider { border: none; border-top: 2px solid #e0e8f0; margin: 18px 0 28px; }
+  .login-box label { display: block; font-size: 13px; color: #444; margin-bottom: 6px; font-weight: 600; }
+  .login-box input[type="text"],
+  .login-box input[type="password"] {
+    width: 100%; padding: 11px 14px; border: 1.5px solid #c5d3e0;
+    border-radius: 5px; font-size: 14px; color: #333; background: #f7fafc;
+    margin-bottom: 20px; outline: none; transition: border-color .2s;
+  }
+  .login-box input:focus { border-color: #2d6a9f; background: #fff; }
+  .login-btn {
+    width: 100%; padding: 12px; background: #1a5276;
+    color: #fff; font-size: 15px; font-weight: 600; border: none;
+    border-radius: 5px; cursor: pointer; letter-spacing: .5px; transition: background .2s;
+  }
+  .login-btn:hover { background: #1f618d; }
+  .login-footer { text-align: center; font-size: 12px; color: #888; margin-top: 22px; }
+
+  /* ── DASHBOARD ── */
+  #dashboard-page { display: none; }
+
+  .top-bar {
+    background: linear-gradient(90deg, #1a3a6b 0%, #2471a3 100%);
+    color: #fff; padding: 0 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 52px;
+  }
+  .top-bar .brand { font-size: 17px; font-weight: 700; letter-spacing: .5px; }
+  .top-bar .top-links { font-size: 13px; display: flex; gap: 20px; }
+  .top-bar .top-links a { color: #cfe2f3; text-decoration: none; }
+  .top-bar .top-links a:hover { color: #fff; }
+
+  .main-content { padding: 18px 22px; }
+
+  /* Profile + Personal Info row */
+  .row { display: flex; gap: 18px; margin-bottom: 18px; }
+
+  /* Profile Card */
+  .profile-card {
+    background: #fff; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.09);
+    width: 320px; min-width: 280px; overflow: hidden;
+  }
+  .profile-card .card-header {
+    background: linear-gradient(90deg, #1a3a6b, #2471a3);
+    color: #fff; padding: 10px 16px; font-size: 15px; font-weight: 600;
+  }
+  .profile-card .avatar-area {
+    display: flex; justify-content: center; padding: 20px 0 14px;
+  }
+  .avatar-circle {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: #dce6f0; border: 3px solid #b0c4d8;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .avatar-circle svg { width: 46px; height: 46px; fill: #7a9ab5; }
+  .profile-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .profile-table tr { border-top: 1px solid #edf2f7; }
+  .profile-table td { padding: 7px 14px; }
+  .profile-table td:first-child { color: #555; font-weight: 600; white-space: nowrap; }
+  .profile-table td:last-child { color: #222; text-align: right; }
+
+  /* Personal Info / Tabs */
+  .info-card {
+    flex: 1; background: #fff; border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.09); overflow: hidden;
+  }
+  .tabs { display: flex; border-bottom: 2px solid #e0e8f0; }
+  .tab-btn {
+    padding: 10px 22px; font-size: 13px; font-weight: 600; cursor: pointer;
+    background: none; border: none; color: #555; border-bottom: 3px solid transparent;
+    margin-bottom: -2px; transition: color .15s;
+  }
+  .tab-btn.active { color: #1a5276; border-bottom-color: #1a5276; }
+  .tab-content { padding: 18px 24px; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .info-row { display: contents; }
+  .info-label {
+    padding: 9px 0; font-size: 13px; color: #555; font-weight: 600;
+    border-bottom: 1px solid #f0f4f8;
+  }
+  .info-value {
+    padding: 9px 0 9px 16px; font-size: 13px; color: #222;
+    border-bottom: 1px solid #f0f4f8;
+  }
+
+  /* Charts row */
+  .charts-row { display: flex; gap: 18px; margin-bottom: 18px; }
+  .chart-card {
+    background: #fff; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.09);
+    padding: 16px; flex: 1;
+  }
+  .chart-title {
+    display: inline-block; background: #1a5276; color: #fff;
+    padding: 5px 16px; border-radius: 4px; font-size: 13px;
+    font-weight: 600; margin-bottom: 14px;
+  }
+  .chart-subtitle { font-size: 12px; color: #555; margin-top: -10px; margin-bottom: 10px; text-align: center; }
+  .chart-subtitle span { font-weight: 700; }
+
+  /* Bottom attendance chart */
+  .attendance-card {
+    background: #fff; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.09);
+    padding: 16px; margin-bottom: 18px;
+  }
+
+  /* Footer */
+  footer {
+    background: #fff; border-top: 1px solid #dce6f0;
+    text-align: center; padding: 12px; font-size: 12px; color: #555;
+  }
+  footer a { color: #2471a3; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ LOGIN PAGE ════════════════ -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="uni-name">Air University Islamabad</div>
+      <div class="portal-label">Student Portal</div>
+    </div>
+    <hr class="login-divider">
+    <label for="username">Registration ID / Username</label>
+    <input type="text" id="username" value="241116" placeholder="Enter your Registration ID">
+    <label for="password">Password</label>
+    <input type="password" id="password" value="••••••••" placeholder="Enter your password">
+    <button class="login-btn" onclick="showDashboard()">Sign In</button>
+    <div class="login-footer">Copyright &copy; 2002–2026 | Air University &nbsp;|&nbsp; Web Administration – Automation Dept.</div>
+  </div>
+</div>
+
+<!-- ════════════════ DASHBOARD PAGE ════════════════ -->
+<div id="dashboard-page">
+  <div class="top-bar">
+    <div class="brand">Air University &nbsp;|&nbsp; Student Portal</div>
+    
+  </div>
+
+  <div class="main-content">
+
+    <!-- Row 1: Profile + Personal Info -->
+    <div class="row">
+      <!-- Profile Card -->
+      <div class="profile-card">
+        <div class="card-header">Profile</div>
+        <div class="avatar-area">
+          <div class="avatar-circle">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+            </svg>
+          </div>
+        </div>
+        <table class="profile-table">
+          <tr><td>Name</td><td>Mohid Ateeq</td></tr>
+          <tr><td>Class</td><td>BSIT-F-24-B-1077</td></tr>
+          <tr><td>Registration ID</td><td>241116</td></tr>
+          <tr><td>Program</td><td style="font-size:12px">Bachelor of Science in Information Technology</td></tr>
+          <tr><td>Department</td><td>Computer Science</td></tr>
+          <tr><td>Registration Date:</td><td style="font-size:12px">9/5/2024 2:10:33 PM</td></tr>
+        </table>
+      </div>
+
+      <!-- Personal Info Card -->
+      <div class="info-card">
+        <div class="tabs">
+          <button class="tab-btn active">Personal Info</button>
+          <button class="tab-btn">Other</button>
+        </div>
+        <div class="tab-content">
+          <div class="info-grid">
+            <div class="info-label">Name</div><div class="info-value">Mohid Ateeq</div>
+            <div class="info-label">Father's Name</div><div class="info-value">Ateeq Ur Rehman</div>
+            <div class="info-label">Date of Birth</div><div class="info-value">11-11-2006</div>
+            <div class="info-label">Gender</div><div class="info-value">Male</div>
+            <div class="info-label">Marital Status</div><div class="info-value">Preferred Not to Say!</div>
+            <div class="info-label">Religion</div><div class="info-value">ISLAM</div>
+            <div class="info-label">Nationality</div><div class="info-value">Pakistan</div>
+            <div class="info-label">CNIC #</div><div class="info-value">3310249527819</div>
+            <div class="info-label">Mobile No.</div><div class="info-value">92 331-6290193</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: CGPA + Credit Hours -->
+    <div class="charts-row">
+      <div class="chart-card" style="flex:1.1">
+        <div style="text-align:center"><span class="chart-title">GPA Graphical Representation</span></div>
+        <canvas id="cgpaChart" height="160"></canvas>
+      </div>
+      <div class="chart-card" style="flex:1">
+        <div style="text-align:center"><span class="chart-title">Registered Courses Credit Hours</span></div>
+        <div class="chart-subtitle">Total Credit Hours: <span>16</span></div>
+        <canvas id="creditChart" height="160"></canvas>
+      </div>
+    </div>
+
+    <!-- Row 3: Attendance -->
+    <div class="attendance-card">
+      <div style="text-align:center"><span class="chart-title"> Attendance (&lt; 75%)</span></div>
+      <canvas id="attendanceChart" height="140"></canvas>
+    </div>
+
+  </div>
+
+  <footer>
+    Copyright &copy; 2002 - 2026 &nbsp;|&nbsp; All Rights Reserved &nbsp;|&nbsp; Developed by Web Administration | Automation Department &nbsp;
+    <a href="#">Air University Islamabad</a>
+  </footer>
+</div>
+
+<script>
+function showDashboard() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('dashboard-page').style.display = 'block';
+  renderCharts();
+}
+
+function renderCharts() {
+  // CGPA Chart
+  const cgpaCtx = document.getElementById('cgpaChart').getContext('2d');
+  new Chart(cgpaCtx, {
+    type: 'line',
+    data: {
+      labels: ['FALL-2024', 'SPRING-2025', 'FALL-2025'],
+      datasets: [{
+        label: 'GPA',
+        data: [3.01, 1.86, 3.04],
+        borderColor: '#2471a3',
+        backgroundColor: 'rgba(36,113,163,0.08)',
+        pointBackgroundColor: '#2471a3',
+        pointRadius: 5,
+        tension: 0,
+        fill: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { font: { size: 11 } } },
+        tooltip: { enabled: true },
+        datalabels: { display: false }
+      },
+      scales: {
+        y: { min: 0, max: 4, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: '#e8eef4' } },
+        x: { ticks: { font: { size: 11 } }, grid: { color: '#e8eef4' } }
+      }
+    },
+    plugins: [{
+      id: 'cgpaLabels',
+      afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        chart.data.datasets.forEach((dataset, i) => {
+          const meta = chart.getDatasetMeta(i);
+          meta.data.forEach((point, idx) => {
+            ctx.fillStyle = '#27ae60';
+            ctx.font = 'bold 11px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText('CGPA: ' + dataset.data[idx].toFixed(2), point.x, point.y - 10);
+          });
+        });
+      }
+    }]
+  });
+
+  // Credit Hours Bar Chart
+  const creditCtx = document.getElementById('creditChart').getContext('2d');
+  new Chart(creditCtx, {
+    type: 'bar',
+    data: {
+      labels: ['CS130L','CS130','IT223L','IT223','MA105','CS325L','CS325','HU401'],
+      datasets: [{
+        label: 'Credit Hours',
+        data: [1, 3, 1, 2, 3, 1, 2, 3],
+        backgroundColor: '#3498db',
+        borderRadius: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 0, max: 4, ticks: { stepSize: 1, font: { size: 11 } }, title: { display: true, text: 'Credit Hours', font: { size: 11 } } },
+        x: { ticks: { font: { size: 10 } }, title: { display: true, text: 'Course Code (S-26)', font: { size: 11 } } }
+      }
+    }
+  });
+
+  // Attendance Bar Chart
+  const attCtx = document.getElementById('attendanceChart').getContext('2d');
+  new Chart(attCtx, {
+    type: 'bar',    
+    data: {
+      labels: [
+        'S-26-Information Technology\nInfrastructure Lab-2152',
+        'S-26-Operating Systems-2153',
+        'S-26-Multivariable Calculus-2156',
+        'S-26-Database Systems Lab-2150',
+        'S-26-Information Technology\nInfrastructure-2151',
+        'S-26-Database Systems-2149'
+      ],
+      datasets: [{
+        label: 'Attendance % (S-26)',
+        data: [97.14, 89.23, 86.67, 96.67, 91.43, 92.73],
+        backgroundColor: '#e74c3c',
+        borderRadius: 1,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { font: { size: 11 }, color: '#e74c3c' } },
+        tooltip: { enabled: true },
+      },
+      scales: {
+        y: { min: 0, max: 100, ticks: { stepSize: 25, font: { size: 11 } }, title: { display: true, text: 'Attendance %', font: { size: 11 } } },
+        x: { ticks: { font: { size: 10 }, maxRotation: 30 }, title: { display: true, text: 'Subjects', font: { size: 11 } } }
+      }
+    },
+    plugins: [{
+      id: 'attLabels',
+      afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        chart.data.datasets.forEach((dataset, i) => {
+          const meta = chart.getDatasetMeta(i);
+          meta.data.forEach((bar, idx) => {
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 11px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(dataset.data[idx] + '%', bar.x, bar.y - 6);
+          });
+        });
+      }
+    }]
+  });
+}
+</script>
+</body>
+</html>
