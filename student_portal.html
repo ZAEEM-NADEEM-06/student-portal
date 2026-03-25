@@ -151,10 +151,13 @@
     </div>
     <hr class="login-divider">
     <label for="username">Registration ID / Username</label>
-    <input type="text" id="username" value="241116" placeholder="Enter your Registration ID">
+    <input type="text" id="username" placeholder="Enter your Registration ID">
     <label for="password">Password</label>
-    <input type="password" id="password" value="••••••••" placeholder="Enter your password">
-    <button class="login-btn" onclick="showDashboard()">Sign In</button>
+    <input type="password" id="password" placeholder="Enter your password">
+    
+    <!-- Changed onclick to check credentials before showing dashboard -->
+    <button class="login-btn" onclick="attemptLogin()">Sign In</button>
+    
     <div class="login-footer">Copyright &copy; 2002–2026 | Air University &nbsp;|&nbsp; Web Administration – Automation Dept.</div>
   </div>
 </div>
@@ -163,7 +166,6 @@
 <div id="dashboard-page">
   <div class="top-bar">
     <div class="brand">Air University &nbsp;|&nbsp; Student Portal</div>
-    
   </div>
 
   <div class="main-content">
@@ -240,6 +242,19 @@
 </div>
 
 <script>
+// New function to handle login validation
+function attemptLogin() {
+  const user = document.getElementById('username').value;
+  const pass = document.getElementById('password').value;
+
+  // Check if credentials match exactly what you specified
+  if (user === '241116' && pass === '12345678') {
+    showDashboard();
+  } else {
+    alert('Invalid Registration ID or Password. Please try again.');
+  }
+}
+
 function showDashboard() {
   document.getElementById('login-page').style.display = 'none';
   document.getElementById('dashboard-page').style.display = 'block';
@@ -322,11 +337,11 @@ function renderCharts() {
     type: 'bar',    
     data: {
       labels: [
-        'S-26-Information Technology\nInfrastructure Lab-2152',
+        ['S-26-Information Technology', 'Infrastructure Lab-2152'],
         'S-26-Operating Systems-2153',
         'S-26-Multivariable Calculus-2156',
         'S-26-Database Systems Lab-2150',
-        'S-26-Information Technology\nInfrastructure-2151',
+        ['S-26-Information Technology', 'Infrastructure-2151'],
         'S-26-Database Systems-2149'
       ],
       datasets: [{
